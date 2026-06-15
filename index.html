@@ -22,7 +22,6 @@
         .result-item.total-post { color: var(--blue-post-tax); font-weight: bold; font-size: 1.4rem; border-top: 2px solid #333; margin-top: 10px; padding-top: 15px; }
         .val { font-weight: 700; color: #000; }
         
-        /* 브론즈 빌더 체크박스 스타일 */
         .check-group { display: flex; align-items: center; background: #fff9fa; padding: 10px; border-radius: 10px; border: 1px dashed var(--amway-red); margin-top: 10px; }
         .check-group input { width: 22px; height: 22px; margin-right: 10px; cursor: pointer; accent-color: var(--amway-red); }
         .check-group label { margin-bottom: 0; color: var(--amway-red); font-size: 0.9rem; cursor: pointer; }
@@ -38,12 +37,15 @@
         .price-text { color: #a53046; font-weight: bold; }
         .growth-rate { color: #007aff; font-weight: bold; font-size: 0.75rem; }
         .method-box { font-size: 0.75rem; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px; margin-top: 8px; line-height: 1.5; border: 1px solid #eee; }
+        /* 버전 표시 스타일 */
+        .version-tag { font-size: 0.7rem; font-weight: normal; color: #aaa; float: right; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>환경 설정 및 본인 실적</h2>
+    <!-- 제목 옆에 버전 정보 추가 -->
+    <h2>환경 설정 및 본인 실적 <span class="version-tag">v 1.0</span></h2>
     <div class="input-group">
         <label>BV/PV 비율 (환율)</label>
         <input type="text" id="ratio" class="ratio-input" value="1.78" inputmode="decimal">
@@ -52,7 +54,6 @@
         <label>본인 개인 PV</label>
         <input type="text" id="personalPV" oninput="handleInput(this)" value="0" inputmode="numeric">
     </div>
-    <!-- 브론즈 빌더 체크박스 추가 -->
     <div class="check-group">
         <input type="checkbox" id="bronzeEligible" checked>
         <label for="bronzeEligible">브론즈 빌더 인센티브 대상자 (30%)</label>
@@ -96,6 +97,9 @@
     <div id="annualContent"></div>
 </div>
 
+<!-- 페이지 하단 버전 표시 -->
+<div style="text-align: center; font-size: 0.7rem; color: #bbb; margin-bottom: 20px;">암웨이 수익 계산기 v 1.0</div>
+
 <script>
     function formatNumber(n) { return Math.floor(n).toLocaleString(); }
     
@@ -125,7 +129,7 @@
         const personalPV = document.getElementById('personalPV').value;
         const depthPV = document.getElementById('depthPV').value;
         const legs = Array.from(document.getElementsByClassName('legPV')).map(input => input.value);
-        const bronzeEligible = document.getElementById('bronzeEligible').checked; // 체크박스 상태 저장
+        const bronzeEligible = document.getElementById('bronzeEligible').checked;
         
         const amwayData = { ratio, personalPV, depthPV, legs, bronzeEligible };
         localStorage.setItem('amway_v2026_data', JSON.stringify(amwayData));
@@ -154,7 +158,7 @@
         const ratio = parseFloat(document.getElementById('ratio').value) || 0;
         const personalPV = parseVal('personalPV');
         const depthPV = parseVal('depthPV');
-        const bronzeEligible = document.getElementById('bronzeEligible').checked; // 체크 여부 확인
+        const bronzeEligible = document.getElementById('bronzeEligible').checked;
         const legs = document.getElementsByClassName('legPV');
         
         let leadershipBonusGrossBV = 0; 
@@ -184,7 +188,6 @@
         let rubyBonus = groupPV >= 20000000 ? groupPV * ratio * 0.02 : 0;
         let mdBonus = qualifiedLegsCount >= 3 ? depthPV * ratio * 0.01 : 0;
         
-        // 브론즈 빌더 계산 로직 (체크박스 확인 추가)
         let bronzeBonusAmt = 0;
         if (bronzeEligible && appliedRate >= 0.15 && (bronzeCount + qualifiedLegsCount) >= 3) {
             bronzeBonusAmt = firstBonus * 0.3;
@@ -218,15 +221,16 @@
                     <div class="ttca-box">
                         <div class="ttca-row"><span>PT / F.PT 신규·재:</span><span class="price-text">180 / 360만원</span></div>
                         ${qualifiedLegsCount >= 2 ? `<div class="ttca-row"><span>사파이어 신규/재:</span><span class="price-text">각 470만원</span></div>` : ''}
-                        ${qualifiedLegsCount >= 3 ? `<div class="ttca-row"><span>에메랄드 신규/재:</span><span class="price-text">각 1,190만원</span></div>` : ''}
+                        ${qualifiedLegsCount >= 3 ? `<div class="ttca-row" style="border-top:1px dashed #ddd; padding-top:5px; margin-top:5px;"><span>에메랄드 신규/재:</span><span class="price-text">각 1,190만원</span></div>` : ''}
                         ${qualifiedLegsCount >= 6 ? `<div class="ttca-row"><span>다이아몬드 신규/재:</span><span class="price-text">각 1,780만원</span></div>` : ''}
                     </div>
                 </div>
                 <div class="annual-item"><span class="badge">PQ보너스</span> <b>사이드 그룹 성장 인센티브 (PQ)</b>
                     <div class="ttca-box">
-                        <div class="ttca-row"><span>유지(10%):</span><span class="price-text">${formatNumber(annualPQBase * 0.1)}원</span></div>
-                        <div class="ttca-row"><span>+1~2개 성장(20%):</span><span class="price-text">${formatNumber(annualPQBase * 0.2)}원</span></div>
-                        <div class="ttca-row"><span>+6개 이상 성장(40%):</span><span class="price-text">${formatNumber(annualPQBase * 0.4)}원</span></div>
+                        <div class="ttca-row"><span>유지(전년동일) <span class="growth-rate">10%</span>:</span><span class="price-text">${formatNumber(annualPQBase * 0.1)}원</span></div>
+                        <div class="ttca-row"><span>+1 ~ 2개 성장 <span class="growth-rate">20%</span>:</span><span class="price-text">${formatNumber(annualPQBase * 0.2)}원</span></div>
+                        <div class="ttca-row"><span>+3 ~ 5개 성장 <span class="growth-rate">30%</span>:</span><span class="price-text">${formatNumber(annualPQBase * 0.3)}원</span></div>
+                        <div class="ttca-row"><span>+6개 이상 성장 <span class="growth-rate">40%</span>:</span><span class="price-text">${formatNumber(annualPQBase * 0.4)}원</span></div>
                     </div>
                 </div>
             `;
@@ -235,15 +239,18 @@
                     <div class="annual-item">
                         <span class="badge badge-fq">FQ보너스</span> <b>독립 레그 성장 인센티브 (FQ)</b>
                         <div class="ttca-box">
-                            <div class="ttca-row"><span>유지(10%):</span><span class="price-text">${formatNumber(annualFQBase * 0.1)}원</span></div>
-                            <div class="ttca-row"><span>+6개 이상 성장(40%):</span><span class="price-text">${formatNumber(annualFQBase * 0.4)}원</span></div>
+                            <div class="ttca-row"><span>유지(전년동일) <span class="growth-rate">10%</span>:</span><span class="price-text">${formatNumber(annualFQBase * 0.1)}원</span></div>
+                            <div class="ttca-row"><span>+1 ~ 2개 성장 <span class="growth-rate">20%</span>:</span><span class="price-text">${formatNumber(annualFQBase * 0.2)}원</span></div>
+                            <div class="ttca-row"><span>+3 ~ 5개 성장 <span class="growth-rate">30%</span>:</span><span class="price-text">${formatNumber(annualFQBase * 0.3)}원</span></div>
+                            <div class="ttca-row"><span>+6개 이상 성장 <span class="growth-rate">40%</span>:</span><span class="price-text">${formatNumber(annualFQBase * 0.4)}원</span></div>
                         </div>
                     </div>
                 `;
             }
             if (qualifiedLegsCount >= 3) {
+                let bonusType = qualifiedLegsCount >= 6 ? "에메랄드 & 다이아몬드" : "에메랄드";
                 annualHTML += `
-                    <div class="annual-item"><span class="badge">보너스</span> <b>연말 지분 배당</b>
+                    <div class="annual-item"><span class="badge">보너스</span> <b>${bonusType} 연말 지분 배당</b>
                         <div class="ttca-box">
                             <div class="ttca-row"><span>에메랄드 배당(예상):</span><span class="price-text">약 1,500~2,500만원</span></div>
                             ${qualifiedLegsCount >= 6 ? `<div class="ttca-row"><span>다이아몬드 배당(예상):</span><span class="price-text">약 5,000~1억원 이상</span></div>` : ''}
