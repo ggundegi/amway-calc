@@ -29,7 +29,6 @@
         .result-item.total-post { color: var(--blue-post-tax); font-weight: bold; font-size: 1.4rem; border-top: 2px solid #333; margin-top: 10px; padding-top: 15px; }
         .val { font-weight: 700; color: #000; }
         
-        /* 브론즈 빌더 체크박스 스타일 */
         .check-group { display: flex; align-items: center; background: #fff9fa; padding: 10px; border-radius: 10px; border: 1px dashed var(--amway-red); margin-top: 10px; }
         .check-group input { width: 22px; height: 22px; margin-right: 10px; cursor: pointer; accent-color: var(--amway-red); }
         .check-group label { margin-bottom: 0; color: var(--amway-red); font-size: 0.9rem; cursor: pointer; }
@@ -45,14 +44,16 @@
         .price-text { color: #a53046; font-weight: bold; }
         .growth-rate { color: #007aff; font-weight: bold; font-size: 0.75rem; }
         .method-box { font-size: 0.75rem; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px; margin-top: 8px; line-height: 1.5; border: 1px solid #eee; }
+        .version-tag { font-size: 0.7rem; font-weight: normal; color: #aaa; float: right; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>환경 설정 및 본인 실적 <span style="color: #a53046; margin-left: 10px; font-size: 0.8rem;">[ v1.2 ]</span></h2>
+    <!-- 버전 정보 v1.3 업데이트 -->
+    <h2>환경 설정 및 본인 실적 <span style="color: #a53046; margin-left: 10px; font-size: 0.8rem;">[ v1.3 ]</span></h2>
     <div class="input-group">
-        <label>BV/PV 비율 (환율)</label>
+        <label>BV/PV 비율</label>
         <input type="text" id="ratio" class="ratio-input" value="1.75" inputmode="decimal">
     </div>
     <div class="input-group">
@@ -83,8 +84,7 @@
     </div>
 </div>
 
-<!-- 버튼 클릭 시에는 calculate()에 true를 전달하여 스크롤 작동 -->
-<button class="btn-calc" onclick="calculate(true)">전체 수익 통합 시뮬레이션</button>
+<button class="btn-calc" onclick="calculate()">전체 수익 통합 시뮬레이션</button>
 
 <div class="card result-card" id="resultArea">
     <h2>월간 예상 수익 리포트</h2>
@@ -103,7 +103,15 @@
     <div id="annualContent"></div>
 </div>
 
-<div style="text-align: center; font-size: 0.7rem; color: #bbb; margin-bottom: 20px;">암웨이 수익 계산기 v1.2</div>
+<!-- 댓글창 섹션 추가 -->
+<div class="card">
+    <h2 style="color: #333; border-bottom: 2px solid #eee;">사용자 의견</h2>
+    <livere-comment client-id="VLYmrfVU8K3OQLURHRBu"></livere-comment>
+    <script type="module" src="https://www.livere.org/livere-widget.js"></script>
+</div>
+
+<!-- 하단 버전 정보 v1.3 업데이트 -->
+<div style="text-align: center; font-size: 0.7rem; color: #bbb; margin-bottom: 20px;">암웨이 수익 계산기 v1.3</div>
 
 <script>
     function formatNumber(n) { return Math.floor(n).toLocaleString(); }
@@ -128,18 +136,15 @@
         if (pv >= 200000) return 0.03;
         return 0;
     }
-
     function saveData() {
         const ratio = document.getElementById('ratio').value;
         const personalPV = document.getElementById('personalPV').value;
         const depthPV = document.getElementById('depthPV').value;
         const legs = Array.from(document.getElementsByClassName('legPV')).map(input => input.value);
         const bronzeEligible = document.getElementById('bronzeEligible').checked;
-        
         const amwayData = { ratio, personalPV, depthPV, legs, bronzeEligible };
         localStorage.setItem('amway_v2026_data', JSON.stringify(amwayData));
     }
-
     function loadData() {
         const savedData = localStorage.getItem('amway_v2026_data');
         if (savedData) {
@@ -152,31 +157,25 @@
             data.legs.forEach((val, i) => { if(legInputs[i]) legInputs[i].value = val; });
         }
     }
-
-    // scroll parameter 추가: true일 때만 하단으로 스크롤
-    function calculate(scroll) {
+    function calculate() {
         saveData();
-
         const ratio = parseFloat(document.getElementById('ratio').value) || 0;
         const personalPV = parseVal('personalPV');
         const depthPV = parseVal('depthPV');
         const bronzeEligible = document.getElementById('bronzeEligible').checked;
         const legs = document.getElementsByClassName('legPV');
-        
         let leadershipBonusGrossBV = 0; 
         let qualifiedLegsCount = 0;
         let groupPV = personalPV;
         let groupBonusSubSumBV = 0;
         let bronzeCount = 0;
         let totalPV = personalPV;
-
         for (let i = 0; i < legs.length; i++) {
             let lpv = parseVal(legs[i]);
             totalPV += lpv;
             if (lpv >= 10000000) { qualifiedLegsCount++; leadershipBonusGrossBV += (lpv * ratio * 0.06); }
             else { groupPV += lpv; groupBonusSubSumBV += (lpv * ratio * getRate(lpv)); if (lpv >= 600000) bronzeCount++; }
         }
-
         let isQualifiedSP = (groupPV >= 10000000 || qualifiedLegsCount >= 2 || (qualifiedLegsCount === 1 && groupPV >= 4000000));
         let appliedRate = isQualifiedSP ? 0.21 : getRate(groupPV);
         const firstBonus = Math.max(0, (groupPV * ratio * appliedRate) - groupBonusSubSumBV);
@@ -187,7 +186,6 @@
         const netLeadershipBonus = Math.max(0, leadershipBonusGrossBV - passUpBV);
         const totalPreTax = firstBonus + netLeadershipBonus + rubyBonus + mdBonus + bronzeBonusAmt;
         const totalPostTax = totalPreTax * (1 - 0.033);
-
         document.getElementById('totalPVDisplay').innerText = formatNumber(totalPV);
         document.getElementById('legCount').innerText = qualifiedLegsCount + " 개";
         document.getElementById('appliedRate').innerText = (appliedRate * 100).toFixed(0) + "%";
@@ -196,7 +194,6 @@
         document.getElementById('passUp').innerText = "-" + formatNumber(passUpBV) + " 원";
         document.getElementById('etcBonus').innerText = formatNumber(rubyBonus + mdBonus + bronzeBonusAmt) + " 원";
         document.getElementById('postTaxIncome').innerText = formatNumber(totalPostTax) + " 원";
-
         const annualArea = document.getElementById('annualArea');
         const annualContent = document.getElementById('annualContent');
         let annualHTML = "";
@@ -206,25 +203,15 @@
             annualHTML += `<div class="annual-item"><span class="badge">TTCA</span> <b>핀 달성 일시불 축하금</b><div class="ttca-box"><div class="ttca-row"><span>PT / F.PT 신규·재:</span><span class="price-text">180 / 360만원</span></div>${qualifiedLegsCount >= 2 ? `<div class="ttca-row"><span>사파이어 신규/재:</span><span class="price-text">각 470만원</span></div>` : ''}${qualifiedLegsCount >= 3 ? `<div class="ttca-row" style="border-top:1px dashed #ddd; padding-top:5px; margin-top:5px;"><span>에메랄드 신규/재:</span><span class="price-text">각 1,190만원</span></div>` : ''}${qualifiedLegsCount >= 6 ? `<div class="ttca-row"><span>다이아몬드 신규/재:</span><span class="price-text">각 1,780만원</span></div>` : ''}</div></div>`;
             annualHTML += `<div class="annual-item"><span class="badge">PQ보너스</span> <b>사이드 그룹 성장 인센티브 (PQ)</b><div class="ttca-box"><div class="ttca-row"><span>유지(10%):</span><span class="price-text">${formatNumber(annualPQBase * 0.1)}원</span></div><div class="ttca-row"><span>+1 ~ 2개 성장(20%):</span><span class="price-text">${formatNumber(annualPQBase * 0.2)}원</span></div><div class="ttca-row"><span>+6개 이상(40%):</span><span class="price-text">${formatNumber(annualPQBase * 0.4)}원</span></div></div></div>`;
             if (qualifiedLegsCount >= 1) annualHTML += `<div class="annual-item"><span class="badge badge-fq">FQ보너스</span> <b>독립 레그 성장 인센티브 (FQ)</b><div class="ttca-box"><div class="ttca-row"><span>유지(10%):</span><span class="price-text">${formatNumber(annualFQBase * 0.1)}원</span></div><div class="ttca-row"><span>+6개 이상(40%):</span><span class="price-text">${formatNumber(annualFQBase * 0.4)}원</span></div></div></div>`;
-            if (qualifiedLegsCount >= 3) {
-                annualHTML += `<div class="annual-item"><span class="badge">보너스</span> <b>에메랄드 이상 연말 지분 배당 대상</b><div class="method-box"><b>[배당 계산 방식]</b><br>한국암웨이 전체 연간 BV의 0.25% 기금을 유자격자 지분대로 배분</div></div>`;
-            }
+            if (qualifiedLegsCount >= 3) annualHTML += `<div class="annual-item"><span class="badge">보너스</span> <b>에메랄드 이상 연말 지분 배당 대상</b></div>`;
             if (qualifiedLegsCount >= 6) annualHTML += `<div class="annual-item"><span class="badge badge-travel">NCA</span> 다이아몬드 인비테이셔널 여행 자격</div>`;
             else annualHTML += `<div class="annual-item"><span class="badge badge-travel">NCA</span> 리더십 세미나(가족 여행) 초청 대상</div>`;
         }
         if (annualHTML !== "") { annualArea.style.display = "block"; annualContent.innerHTML = annualHTML; }
         else { annualArea.style.display = "none"; }
-        
-        // 스크롤 제어: scroll 인자가 true일 때만 하단 결과창으로 이동
-        if (scroll === true) {
-            document.getElementById('resultArea').scrollIntoView({behavior: "smooth"});
-        }
+        document.getElementById('resultArea').scrollIntoView({behavior: "smooth"});
     }
-    
-    window.onload = function() {
-        loadData();
-        calculate(false); // 처음 로드될 때는 스크롤하지 않음 (false)
-    };
+    window.onload = function() { loadData(); calculate(); };
 </script>
 </body>
 </html>
