@@ -50,8 +50,8 @@
 <body>
 
 <div class="card">
-    <!-- 버전 정보 v1.3 업데이트 -->
-    <h2>환경 설정 및 본인 실적 <span style="color: #a53046; margin-left: 10px; font-size: 0.8rem;">[ v1.3 ]</span></h2>
+    <!-- 버전 정보 v1.0 업데이트 -->
+    <h2>환경 설정 및 본인 실적 <span style="color: #a53046; margin-left: 10px; font-size: 1.0rem;">[ v1.0 ]</span></h2>
     <div class="input-group">
         <label>BV/PV 비율</label>
         <input type="text" id="ratio" class="ratio-input" value="1.75" inputmode="decimal">
@@ -110,8 +110,8 @@
     <script type="module" src="https://www.livere.org/livere-widget.js"></script>
 </div>
 
-<!-- 하단 버전 정보 v1.3 업데이트 -->
-<div style="text-align: center; font-size: 0.7rem; color: #bbb; margin-bottom: 20px;">암웨이 수익 계산기 v1.3</div>
+    <!-- 하단 버전 정보 v1.0 업데이트 -->
+    <div style="text-align: center; font-size: 1.0rem; color: #bbb; margin-bottom: 20px;">암웨이 수익 계산기 v1.0</div>
 
 <script>
     function formatNumber(n) { return Math.floor(n).toLocaleString(); }
@@ -157,7 +157,7 @@
             data.legs.forEach((val, i) => { if(legInputs[i]) legInputs[i].value = val; });
         }
     }
-    function calculate() {
+    function calculate(doScroll) {
         saveData();
         const ratio = parseFloat(document.getElementById('ratio').value) || 0;
         const personalPV = parseVal('personalPV');
@@ -209,9 +209,9 @@
         }
         if (annualHTML !== "") { annualArea.style.display = "block"; annualContent.innerHTML = annualHTML; }
         else { annualArea.style.display = "none"; }
-        document.getElementById('resultArea').scrollIntoView({behavior: "smooth"});
+        if (doScroll) document.getElementById('resultArea').scrollIntoView({behavior: "smooth"});
     }
-    window.onload = function() { loadData(); calculate(); };
+    window.onload = function() { loadData(); calculate(false); };
 </script>
 </body>
 </html>
