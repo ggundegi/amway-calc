@@ -50,6 +50,8 @@
         .growth-rate { color: #007aff; font-weight: bold; font-size: 0.75rem; }
         .method-box { font-size: 0.75rem; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px; margin-top: 8px; line-height: 1.5; border: 1px solid #eee; }
         .version-tag { font-size: 0.7rem; font-weight: normal; color: #aaa; float: right; }
+        .btn-reset { float: right; background: #8e8e93; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-reset:active { background: #6d6d72; }
     </style>
 </head>
 <body>
@@ -69,6 +71,7 @@
         <input type="checkbox" id="bronzeEligible" checked>
         <label for="bronzeEligible">브론즈 빌더 인센티브 대상자 (30%)</label>
     </div>
+    <button type="button" class="btn-reset" onclick="resetPV()">PV 초기화</button>
 </div>
 
 <div class="card">
@@ -124,6 +127,14 @@
     function handleInput(obj) {
         let value = obj.value.replace(/[^0-9]/g, ""); 
         obj.value = (value === "" || value === "0") ? "0" : Number(value).toLocaleString();
+    }
+
+    function resetPV() {
+        document.getElementById('personalPV').value = "0";
+        const legs = document.getElementsByClassName('legPV');
+        for (let i = 0; i < legs.length; i++) legs[i].value = "0";
+        saveData();
+        calculate(false);
     }
 
     function parseVal(idOrElem) {
