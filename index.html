@@ -71,7 +71,7 @@
         <input type="checkbox" id="bronzeEligible" checked>
         <label for="bronzeEligible">브론즈 빌더 인센티브 대상자 (30%)</label>
     </div>
-    <button type="button" class="btn-reset" onclick="resetPV()">PV 초기화</button>
+    <button type="button" class="btn-reset" onclick="resetPV()" style="display:none;">PV 초기화</button>
 </div>
 
 <div class="card">
@@ -228,6 +228,27 @@
         if (doScroll) document.getElementById('resultArea').scrollIntoView({behavior: "smooth"});
     }
     window.onload = function() { loadData(); calculate(false); };
+
+    // Service Worker 등록 (매 접속 시 최신 파일 강제 로드)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('sw.js').then(function(reg) {
+                // 업데이트가 있으면 즉시 적용
+                reg.addEventListener('updatefound', function() {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', function() {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            newWorker.postMessage('SKIP_WAITING');
+                        }
+                    });
+                });
+            });
+            // 컨트롤러가 변경되면(새 SW 활성화) 즉시 새로고침
+            navigator.serviceWorker.addEventListener('controllerchange', function() {
+                window.location.reload();
+            });
+        });
+    }
 </script>
 </body>
 </html>
